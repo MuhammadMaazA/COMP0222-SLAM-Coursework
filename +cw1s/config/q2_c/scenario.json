@@ -1,0 +1,25 @@
+{
+    "landmarks": {
+        "slam": {
+            "configuration": "random",
+            "numLandmarks": 60,
+            "x_min": -45,
+            "x_max": 45,
+            "y_min": -45,
+            "y_max": 45
+        }
+    },
+    "sensors": {
+        "gps": {
+            "enabled": true,
+            "sigmaR": 1,
+            "measurementPeriod": 0.5
+        },
+        "slam": {
+            "enabled": true,
+            "sigmaR": [0.5, 5],
+            "detectionRange": 10,
+            "measurementPeriod": 0.2
+        }
+    }
+}
