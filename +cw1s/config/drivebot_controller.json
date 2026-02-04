@@ -1,8 +1,0 @@
-{
-    "vy": 0,
-    "speed": 3,
-    "omega": 0.1,
-    "odomUpdatePeriod": 0.05,
-    "odomSigma": [0.5, 0.1, 5],
-    "closenessDistance": 0.1
-}
