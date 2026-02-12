@@ -1,21 +1,15 @@
-% Setup script for COMP0222 Coursework 1 - Factor Graph SLAM
-% Run this script before running any coursework questions
+% Script to set up the search path if not done so already
+if (exist('ebe.core.Event', 'class')  ~= 8)
 
-fprintf('Setting up COMP0222 Coursework 1...\n');
+    % Add the path
+    addpath(genpath(pwd));
 
-% Get the path to this script
-cwPath = fileparts(mfilename('fullpath'));
-
-% Add paths
-addpath(cwPath);
-addpath(fullfile(cwPath, 'Libraries'));
-addpath(fullfile(cwPath, 'Labs', 'Lab3_EKF_SLAM', 'Code'));
-
-fprintf('Setup complete.\n\n');
-fprintf('Available scripts:\n');
-fprintf('  >> cw1s.q1_b   - Q1b: Test PlatformPredictionEdge\n');
-fprintf('  >> cw1s.q1_c   - Q1c: Chi2 and timing analysis\n');
-fprintf('  >> cw1s.q2_b   - Q2b: Test LandmarkRangeBearingEdge\n');
-fprintf('  >> cw1s.q2_c   - Q2c: Large scenario comparison\n');
-fprintf('  >> cw1s.q3_a   - Q3a: Graph pruning strategy\n');
-fprintf('  >> cw1s.q3_b   - Q3b: Vertex fixing strategy\n');
+    % Confirm this worked
+    if (exist('ebe.core.Event', 'class')  == 8)
+        disp('ebe added to the search path')
+    else
+        disp('ebe not added to the search path; was setup.m run from the correct directory?')
+    end
+else
+    disp('ebe is already on the search path; type "rmpath(genpath(pwd))" on the command line if you want to clear it')
+end
