@@ -1,14 +1,4 @@
 % Q1c: Analyse chi2 and optimisation time behaviour
-%
-% This script runs the GPS-enabled localisation system, optimising the
-% graph at every time step (which is very inefficient). Once finished,
-% it plots chi2 values and optimisation durations to study how they
-% evolve as the graph grows.
-%
-% Key observations:
-%   1. Chi2 increases in a staircase pattern (GPS events)
-%   2. Optimisation time also grows (larger Hessian)
-%   3. Both are driven by the monotonically growing graph size
 
 import ebe.core.*;
 import ebe.graphics.*;
@@ -135,23 +125,6 @@ for e = 1 : numel(resultsAccumulator.xEstStore)
     sgtitle('Q1c: Estimation Error with $2\sigma$ Covariance Bounds', ...
             'Interpreter', 'latex', 'FontSize', 14)
 
-    % --- Console summary ---
-    fprintf('\n===== Q1c Estimation Results =====\n');
-    posError = XEst(1:2, :) - XTrue(1:2, :);
-    headError = mod(XEst(3,:) - XTrue(3,:) + pi, 2*pi) - pi;
-    fprintf('RMSE x:       %.4f m\n', sqrt(mean(posError(1,:).^2)));
-    fprintf('RMSE y:       %.4f m\n', sqrt(mean(posError(2,:).^2)));
-    fprintf('RMSE heading: %.4f rad (%.2f deg)\n', ...
-            sqrt(mean(headError.^2)), rad2deg(sqrt(mean(headError.^2))));
-    fprintf('\n');
-    allErrors = [posError(1,:); posError(2,:); headError];
-    allSigma = 2 * sqrt(PX);
-    for f = 1 : numStates
-        pct = 100 * sum(abs(allErrors(f,:)) <= allSigma(f,:)) / numTimeSteps;
-        fprintf('%s within 2-sigma: %.1f%% (expected ~95.4%%)\n', ...
-                stateLabels{f}, pct);
-    end
-    fprintf('==================================\n\n');
 end
 
 % =====================================================================
@@ -190,39 +163,3 @@ set(gca, 'FontSize', 10)
 sgtitle('Q1c: $\chi^2$ and Optimisation Time Trends', ...
         'Interpreter', 'latex', 'FontSize', 14)
 
-% =====================================================================
-% Console: Quantitative trend analysis
-% =====================================================================
-fprintf('===== Q1c: Chi2 and Timing Analysis =====\n');
-fprintf('Total optimisation steps:  %d\n', numChi2);
-fprintf('Chi2 range:                [%.2f, %.2f]\n', min(chi2Values), max(chi2Values));
-fprintf('Final chi2:                %.2f\n', chi2Values(end));
-fprintf('Mean optimisation time:    %.4f s\n', mean(optimDurations));
-fprintf('Max optimisation time:     %.4f s\n', max(optimDurations));
-fprintf('\n');
-
-% Fit linear trend to chi2
-if numChi2 > 10
-    p = polyfit((1:numChi2), chi2Values, 1);
-    fprintf('Chi2 linear fit:     chi2 ~ %.4f * step + %.4f\n', p(1), p(2));
-end
-
-% Fit linear trend to optimisation times
-if numDur > 10
-    pT = polyfit((1:numDur), optimDurations, 1);
-    fprintf('Timing linear fit:   dt   ~ %.6f * step + %.6f\n', pT(1), pT(2));
-end
-
-fprintf('\n--- Observations ---\n');
-fprintf('1. Chi2 shows a STAIRCASE pattern. Each step jump occurs when a\n');
-fprintf('   GPS measurement is added (every %.1f s). Between GPS events,\n', ...
-        config.scenario.sensors.gps.measurementPeriod);
-fprintf('   chi2 stays flat because prediction edges are satisfied by\n');
-fprintf('   the initial estimate (zero residual).\n');
-fprintf('2. Optimisation time SPIKES coincide with GPS events. The spikes\n');
-fprintf('   grow larger over time because the Hessian matrix grows with\n');
-fprintf('   each new vertex/edge added to the graph.\n');
-fprintf('3. UNDERLYING CAUSE: graph grows linearly in time.\n');
-fprintf('   More edges => more cost terms => higher chi2.\n');
-fprintf('   Larger Hessian => more expensive factorisation => longer solve.\n');
-fprintf('==========================================\n\n');

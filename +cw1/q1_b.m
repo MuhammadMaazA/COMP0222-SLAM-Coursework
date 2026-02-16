@@ -141,38 +141,4 @@ for e = 1 : numel(resultsAccumulator.xEstStore)
     sgtitle('Q1b: Estimation Error with $2\sigma$ Covariance Bounds', ...
             'Interpreter', 'latex', 'FontSize', 14)
 
-    % -----------------------------------------------------------------
-    % Console output: RMSE and consistency analysis
-    % -----------------------------------------------------------------
-    fprintf('\n===== Q1b Results Summary =====\n');
-
-    % Compute RMSE for each state
-    posError = XEst(1:2, :) - XTrue(1:2, :);
-    headingError = mod(XEst(3,:) - XTrue(3,:) + pi, 2*pi) - pi;
-    rmseX = sqrt(mean(posError(1,:).^2));
-    rmseY = sqrt(mean(posError(2,:).^2));
-    rmseH = sqrt(mean(headingError.^2));
-
-    fprintf('RMSE x:       %.4f m\n', rmseX);
-    fprintf('RMSE y:       %.4f m\n', rmseY);
-    fprintf('RMSE heading: %.4f rad (%.2f deg)\n', rmseH, rad2deg(rmseH));
-    fprintf('\n');
-
-    % Final covariance bounds
-    fprintf('Final 2-sigma x:   %.4f m\n', 2*sqrt(PX(1,end)));
-    fprintf('Final 2-sigma y:   %.4f m\n', 2*sqrt(PX(2,end)));
-    fprintf('Final 2-sigma psi: %.4f rad\n', 2*sqrt(PX(3,end)));
-    fprintf('\n');
-
-    % Estimator consistency: percentage of errors within 2-sigma
-    allErrors = [posError(1,:); posError(2,:); headingError];
-    allSigma = 2 * sqrt(PX);
-    withinBounds = abs(allErrors) <= allSigma;
-    for f = 1 : numStates
-        pct = 100 * sum(withinBounds(f,:)) / numTimeSteps;
-        fprintf('%s within 2-sigma: %.1f%% (expected ~95.4%%)\n', ...
-                stateLabels{f}, pct);
-    end
-
-    fprintf('================================\n\n');
 end

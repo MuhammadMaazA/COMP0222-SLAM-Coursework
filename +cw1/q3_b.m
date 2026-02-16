@@ -1,4 +1,4 @@
-% Run q2b
+% Q3b: Vertex fixing strategy — fix older platform vertices
 
 import ebe.core.*;
 import ebe.graphics.*;

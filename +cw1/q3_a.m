@@ -1,4 +1,4 @@
-% Run q2b
+% Q3a: Edge pruning strategy — limit observations per landmark
 
 import ebe.core.*;
 import ebe.graphics.*;
