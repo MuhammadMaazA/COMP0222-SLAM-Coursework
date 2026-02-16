@@ -1,16 +1,3 @@
-% Q2b: Test the LandmarkRangeBearingEdge implementation
-%
-% Both a G2O factor graph and an EKF SLAM system run in parallel.
-% With perturbWithNoise=false, both should produce identical results.
-%
-% Outputs:
-%   Figure 1: Live simulation with landmarks
-%   Figure 2: Trajectory comparison with landmark positions
-%   Figure 3-4: State estimation errors per estimator
-%   Figure 5: G2O vs EKF direct comparison
-%   Figure 6: Chi2 and optimisation time
-%   Console: RMSE, consistency, and G2O-EKF discrepancy
-
 import ebe.core.*;
 import ebe.graphics.*;
 import cw1.*;
@@ -57,9 +44,6 @@ mainLoop.setGraphicsUpdatePeriod(25);
 % Run the main loop
 mainLoop.run();
 
-% =====================================================================
-% Post-simulation analysis
-% =====================================================================
 
 T = resultsAccumulator.timeStore;
 XTrue = resultsAccumulator.xTrueStore;
@@ -78,9 +62,7 @@ else
     lmMat = lmPositions;
 end
 
-% -----------------------------------------------------------------
-% Trajectory Comparison with Landmarks
-% -----------------------------------------------------------------
+
 ebe.graphics.FigureManager.getFigure('Q2b: Trajectory Comparison');
 clf
 
@@ -113,9 +95,7 @@ title('Q2b: Trajectory Comparison with Landmarks', 'FontSize', 14)
 legend('Location', 'best', 'FontSize', 9)
 set(gca, 'FontSize', 11)
 
-% -----------------------------------------------------------------
-% State Estimation Errors per estimator
-% -----------------------------------------------------------------
+
 for e = 1 : numel(resultsAccumulator.xEstStore)
     PX = resultsAccumulator.PEstStore{e};
     XEst = resultsAccumulator.xEstStore{e};
@@ -162,7 +142,7 @@ for e = 1 : numel(resultsAccumulator.xEstStore)
             estimatorNames{e}), 'Interpreter', 'latex', 'FontSize', 14)
 
     % Console summary
-    fprintf('\n===== Q2b %s Results =====\n', estimatorNames{e});
+    fprintf('\n Q2b %s Results \n', estimatorNames{e});
     posError = XEst(1:2, :) - XTrue(1:2, :);
     headError = mod(XEst(3,:) - XTrue(3,:) + pi, 2*pi) - pi;
     fprintf('RMSE x:       %.4f m\n', sqrt(mean(posError(1,:).^2)));
@@ -180,9 +160,7 @@ for e = 1 : numel(resultsAccumulator.xEstStore)
     fprintf('==============================\n');
 end
 
-% -----------------------------------------------------------------
-% G2O vs EKF Direct Comparison
-% -----------------------------------------------------------------
+
 if numel(resultsAccumulator.xEstStore) >= 2
     XG2O = resultsAccumulator.xEstStore{1};
     XEKF = resultsAccumulator.xEstStore{2};
@@ -208,7 +186,7 @@ if numel(resultsAccumulator.xEstStore) >= 2
     sgtitle('Q2b: G2O $-$ EKF State Discrepancy', ...
             'Interpreter', 'latex', 'FontSize', 14)
 
-    fprintf('\n===== G2O vs EKF Discrepancy =====\n');
+    fprintf('\n G2O vs EKF Discrepancy \n');
     for f = 1 : numStates
         d = XG2O(f, 1:nCommon) - XEKF(f, 1:nCommon);
         if f == 3
@@ -219,9 +197,7 @@ if numel(resultsAccumulator.xEstStore) >= 2
     fprintf('==================================\n\n');
 end
 
-% -----------------------------------------------------------------
-% Chi2 and Optimisation Time (G2O only)
-% -----------------------------------------------------------------
+
 g2oPerfData = g2oSLAMSystem.getPerformanceData();
 chi2Values = g2oPerfData.get('g2o.op.chi2');
 optimDurations = g2oPerfData.get('g2o.op.op_dt');
@@ -252,7 +228,7 @@ set(gca, 'FontSize', 10)
 sgtitle('Q2b: $\chi^2$ and Optimisation Time', ...
         'Interpreter', 'latex', 'FontSize', 14)
 
-fprintf('===== Q2b: Chi2 Summary =====\n');
+fprintf(' Q2b: Chi2 Summary \n');
 fprintf('Total optimisation steps:  %d\n', numChi2);
 fprintf('Final chi2:                %.2f\n', chi2Values(end));
 fprintf('Mean optimisation time:    %.4f s\n', mean(optimDurations));

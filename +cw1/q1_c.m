@@ -1,5 +1,3 @@
-% Q1c: Analyse chi2 and optimisation time behaviour
-
 import ebe.core.*;
 import ebe.graphics.*;
 import cw1.*;
@@ -53,9 +51,6 @@ mainLoop.setGraphicsUpdatePeriod(1);
 % Run the main loop
 mainLoop.run();
 
-% =====================================================================
-% Extract stored data
-% =====================================================================
 
 T = resultsAccumulator.timeStore;
 XTrue = resultsAccumulator.xTrueStore;
@@ -70,7 +65,7 @@ for e = 1 : numel(resultsAccumulator.xEstStore)
     XEst = resultsAccumulator.xEstStore{e};
     numTimeSteps = size(XEst, 2);
 
-    % --- Trajectory Comparison ---
+    % Trajectory Comparison 
     ebe.graphics.FigureManager.getFigure('Q1c: Trajectory Comparison');
     clf
     plot(XTrue(1,:), XTrue(2,:), 'g-', 'LineWidth', 2)
@@ -87,7 +82,7 @@ for e = 1 : numel(resultsAccumulator.xEstStore)
     legend('Ground Truth', 'Estimated', 'Start', 'End', 'Location', 'best')
     set(gca, 'FontSize', 11)
 
-    % --- State Estimation Errors with 2-sigma bounds ---
+    % State Estimation Errors with 2-sigma bounds 
     ebe.graphics.FigureManager.getFigure('Q1c: State Estimation Errors');
     clf
 
@@ -125,11 +120,25 @@ for e = 1 : numel(resultsAccumulator.xEstStore)
     sgtitle('Q1c: Estimation Error with $2\sigma$ Covariance Bounds', ...
             'Interpreter', 'latex', 'FontSize', 14)
 
+    % Console summary
+    fprintf('\n===== Q1c Estimation Results =====\n');
+    posError = XEst(1:2, :) - XTrue(1:2, :);
+    headError = mod(XEst(3,:) - XTrue(3,:) + pi, 2*pi) - pi;
+    fprintf('RMSE x:       %.4f m\n', sqrt(mean(posError(1,:).^2)));
+    fprintf('RMSE y:       %.4f m\n', sqrt(mean(posError(2,:).^2)));
+    fprintf('RMSE heading: %.4f rad (%.2f deg)\n', ...
+            sqrt(mean(headError.^2)), rad2deg(sqrt(mean(headError.^2))));
+    fprintf('\n');
+    allErrors = [posError(1,:); posError(2,:); headError];
+    allSigma = 2 * sqrt(PX);
+    for f = 1 : numStates
+        pct = 100 * sum(abs(allErrors(f,:)) <= allSigma(f,:)) / numTimeSteps;
+        fprintf('%s within 2-sigma: %.1f%% (expected ~95.4%%)\n', ...
+                stateLabels{f}, pct);
+    end
+    fprintf('==================================\n\n');
 end
 
-% =====================================================================
-% Q1c CORE: Chi2 and Optimisation Time Plots
-% =====================================================================
 
 g2oPerfData = g2oSLAMSystem.getPerformanceData();
 chi2Values = g2oPerfData.get('g2o.op.chi2');
@@ -162,4 +171,25 @@ set(gca, 'FontSize', 10)
 
 sgtitle('Q1c: $\chi^2$ and Optimisation Time Trends', ...
         'Interpreter', 'latex', 'FontSize', 14)
+
+
+fprintf('===== Q1c: Chi2 and Timing Analysis =====\n');
+fprintf('Total optimisation steps:  %d\n', numChi2);
+fprintf('Chi2 range:                [%.2f, %.2f]\n', min(chi2Values), max(chi2Values));
+fprintf('Final chi2:                %.2f\n', chi2Values(end));
+fprintf('Mean optimisation time:    %.4f s\n', mean(optimDurations));
+fprintf('Max optimisation time:     %.4f s\n', max(optimDurations));
+fprintf('\n');
+
+% Fit linear trend to chi2
+if numChi2 > 10
+    p = polyfit((1:numChi2), chi2Values, 1);
+    fprintf('Chi2 linear fit:     chi2 ~ %.4f * step + %.4f\n', p(1), p(2));
+end
+
+% Fit linear trend to optimisation times
+if numDur > 10
+    pT = polyfit((1:numDur), optimDurations, 1);
+    fprintf('Timing linear fit:   dt   ~ %.6f * step + %.6f\n', pT(1), pT(2));
+end
 

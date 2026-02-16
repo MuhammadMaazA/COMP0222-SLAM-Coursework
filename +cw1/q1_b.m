@@ -1,13 +1,3 @@
-% Q1b: Test the PlatformPredictionEdge implementation
-%
-% This script tests the GPS-enabled localisation system with the
-% factor graph prediction step. It creates a g2o SLAM system,
-% runs the simulation, and produces:
-%   - Figure 1: Live simulation view
-%   - Figure 2: True vs estimated XY trajectory
-%   - Figure 3: State estimation errors (x, y, psi) with 2-sigma bounds
-%   - Console: RMSE statistics and estimator consistency check
-
 import ebe.core.*;
 import ebe.graphics.*;
 import cw1.*;
@@ -51,9 +41,6 @@ mainLoop.setGraphicsUpdatePeriod(50);
 % Run the main loop until it terminates
 mainLoop.run();
 
-% =====================================================================
-% Post-simulation analysis and plotting
-% =====================================================================
 
 % Extract stored data from the results accumulator
 T = resultsAccumulator.timeStore;
@@ -70,9 +57,6 @@ for e = 1 : numel(resultsAccumulator.xEstStore)
     XEst = resultsAccumulator.xEstStore{e};
     numTimeSteps = size(XEst, 2);
 
-    % -----------------------------------------------------------------
-    % Figure: XY Trajectory Comparison
-    % -----------------------------------------------------------------
     ebe.graphics.FigureManager.getFigure('Q1b: Trajectory Comparison');
     clf
     plot(XTrue(1,:), XTrue(2,:), 'g-', 'LineWidth', 2)
@@ -89,9 +73,7 @@ for e = 1 : numel(resultsAccumulator.xEstStore)
     legend('Ground Truth', 'Estimated', 'Start', 'End', 'Location', 'best')
     set(gca, 'FontSize', 11)
 
-    % -----------------------------------------------------------------
-    % Figure: State Estimation Errors with 2-sigma Bounds
-    % -----------------------------------------------------------------
+
     ebe.graphics.FigureManager.getFigure('Q1b: State Estimation Errors');
     clf
 
@@ -141,4 +123,36 @@ for e = 1 : numel(resultsAccumulator.xEstStore)
     sgtitle('Q1b: Estimation Error with $2\sigma$ Covariance Bounds', ...
             'Interpreter', 'latex', 'FontSize', 14)
 
+
+    fprintf('\n Q1b Results \n');
+
+    % Compute RMSE for each state
+    posError = XEst(1:2, :) - XTrue(1:2, :);
+    headingError = mod(XEst(3,:) - XTrue(3,:) + pi, 2*pi) - pi;
+    rmseX = sqrt(mean(posError(1,:).^2));
+    rmseY = sqrt(mean(posError(2,:).^2));
+    rmseH = sqrt(mean(headingError.^2));
+
+    fprintf('RMSE x:       %.4f m\n', rmseX);
+    fprintf('RMSE y:       %.4f m\n', rmseY);
+    fprintf('RMSE heading: %.4f rad (%.2f deg)\n', rmseH, rad2deg(rmseH));
+    fprintf('\n');
+
+    % Final covariance bounds
+    fprintf('Final 2-sigma x:   %.4f m\n', 2*sqrt(PX(1,end)));
+    fprintf('Final 2-sigma y:   %.4f m\n', 2*sqrt(PX(2,end)));
+    fprintf('Final 2-sigma psi: %.4f rad\n', 2*sqrt(PX(3,end)));
+    fprintf('\n');
+
+    % Estimator consistency: percentage of errors within 2-sigma
+    allErrors = [posError(1,:); posError(2,:); headingError];
+    allSigma = 2 * sqrt(PX);
+    withinBounds = abs(allErrors) <= allSigma;
+    for f = 1 : numStates
+        pct = 100 * sum(withinBounds(f,:)) / numTimeSteps;
+        fprintf('%s within 2-sigma: %.1f%% (expected ~95.4%%)\n', ...
+                stateLabels{f}, pct);
+    end
+
+    fprintf('================================\n\n');
 end
