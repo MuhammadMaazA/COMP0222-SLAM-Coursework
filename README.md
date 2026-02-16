@@ -1,47 +1,28 @@
-# COMP0222 Coursework 1 - Factor Graph SLAM
+# COMP0222 Coursework 1 — Factor Graph SLAM
 
-Implementation of a factor graph-based SLAM system using g2o optimization framework in MATLAB.
+MATLAB implementation of graph-based SLAM using the g2o optimisation framework, developed as part of the COMP0222 module at UCL. The system compares **EKF-SLAM** and **G2O factor graph SLAM** on a simulated robot navigating a landmark environment with GPS and odometry.
 
-## Structure
+## How to Run
 
-```
-+cw1s/
-├── +edges/                    # Factor graph edges (YOUR IMPLEMENTATIONS)
-│   ├── PlatformPredictionEdge.m   # Q1b: Process model edge
-│   ├── GPSMeasurementEdge.m       # GPS observation edge
-│   └── LandmarkRangeBearingEdge.m # Q2b: Landmark observation edge
-├── +vertices/                 # Factor graph vertices
-│   ├── VehicleStateVertex.m       # Vehicle pose (x, y, ψ)
-│   └── LandmarkStateVertex.m      # Landmark position (x, y)
-├── +drivebot/                 # SLAM systems
-│   ├── G2OSLAMSystem.m            # Factor graph SLAM
-│   ├── EKFSLAMSystem.m            # EKF-SLAM (for comparison)
-│   └── Simulator.m                # Simulation environment
-├── config/                    # Configuration files
-└── q1_b.m, q1_c.m, ...       # Test scripts
-
-Libraries/                     # g2o and ebe frameworks
-Labs/Lab3_EKF_SLAM/           # Reference EKF-SLAM from Lab 3
-```
-
-## Usage
-
-1. Open MATLAB and navigate to this folder
-2. Run setup:
+1. Open MATLAB and navigate to this project folder.
+2. Run the setup script:
    ```matlab
-   >> setup
+   setup
    ```
-3. Run test scripts:
+3. For optimal results, clear any cached class definitions before each run:
    ```matlab
-   >> cw1s.q1_b   % Test prediction edge
-   >> cw1s.q2_b   % Test landmark edge
+   clear classes
+   ```
+4. Run any question script:
+   ```matlab
+   cw1.q1_b    % Q1b: GPS-only localisation
+   cw1.q1_c    % Q1c: Chi2 and optimisation time analysis
+   cw1.q2_b    % Q2b: Full SLAM with landmarks
+   cw1.q2_c    % Q2c: Challenging scenario comparison
+   cw1.q3_a    % Q3a: Edge pruning scalability strategy
+   cw1.q3_b    % Q3b: Vertex fixing scalability strategy
    ```
 
-## Questions
+## Note on Results
 
-- **Q1b**: Implement `PlatformPredictionEdge` (initialEstimate, computeError, linearizeOplus)
-- **Q1c**: Analyze chi2 and optimization time trends
-- **Q2b**: Implement `LandmarkRangeBearingEdge`
-- **Q2c**: Compare EKF vs G2O in challenging scenario
-- **Q3a**: Evaluate graph pruning strategy
-- **Q3b**: Evaluate vertex fixing strategy
+Due to the stochastic nature of the simulator (random noise on odometry and observations), **each run will produce slightly different results**. The outputs presented in the report were selected from the best representative runs.

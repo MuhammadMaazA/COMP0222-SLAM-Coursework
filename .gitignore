@@ -11,6 +11,9 @@ slprj/
 *.jpg
 *.avi
 
+# Report
+Report/
+
 # OS
 .DS_Store
 Thumbs.db
