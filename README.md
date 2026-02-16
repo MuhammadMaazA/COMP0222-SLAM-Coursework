@@ -1,4 +1,4 @@
-# COMP0222 Coursework 1 — Factor Graph SLAM
+# COMP0222 Coursework 1
 
 MATLAB implementation of graph-based SLAM using the g2o optimisation framework, developed as part of the COMP0222 module at UCL. The system compares **EKF-SLAM** and **G2O factor graph SLAM** on a simulated robot navigating a landmark environment with GPS and odometry.
 
